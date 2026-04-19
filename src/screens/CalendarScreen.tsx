@@ -34,35 +34,39 @@ export const CalendarScreen = ({ activeTab, onTabPress }: CalendarScreenProps) =
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Calendar</Text>
-        <Text style={styles.subtitle}>Schedule your repeating phase tasks</Text>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Calendar</Text>
+          <Text style={styles.subtitle}>Schedule your repeating phase tasks</Text>
+        </View>
+
+        <View style={styles.weekRow}>
+          {weekDays.map(([day, value]) => {
+            const selected = selectedDay === value;
+            return (
+              <TouchableOpacity key={String(value)} onPress={() => setSelectedDay(value)} style={styles.dayWrapper}>
+                <Text style={[styles.dayText, selected && styles.daySelected]}>{day}</Text>
+                <Text style={[styles.dateText, selected && styles.daySelected]}>{value}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <ScrollView style={styles.scheduleList} showsVerticalScrollIndicator={false}>
+          {scheduleData.map((item) => (
+            <View key={item.id} style={styles.scheduleCard}>
+              <Text style={styles.scheduleTitle}>{item.title}</Text>
+              <Text style={styles.scheduleMeta}>
+                {item.time} • phase {item.phase}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
       </View>
 
-      <View style={styles.weekRow}>
-        {weekDays.map(([day, value]) => {
-          const selected = selectedDay === value;
-          return (
-            <TouchableOpacity key={String(value)} onPress={() => setSelectedDay(value)} style={styles.dayWrapper}>
-              <Text style={[styles.dayText, selected && styles.daySelected]}>{day}</Text>
-              <Text style={[styles.dateText, selected && styles.daySelected]}>{value}</Text>
-            </TouchableOpacity>
-          );
-        })}
+      <View style={styles.navDock}>
+        <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
       </View>
-
-      <ScrollView style={styles.scheduleList} showsVerticalScrollIndicator={false}>
-        {scheduleData.map((item) => (
-          <View key={item.id} style={styles.scheduleCard}>
-            <Text style={styles.scheduleTitle}>{item.title}</Text>
-            <Text style={styles.scheduleMeta}>
-              {item.time} • phase {item.phase}
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
-
-      <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
     </View>
   );
 };
@@ -71,9 +75,16 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.charcoal,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     paddingTop: 70,
-    paddingBottom: 12
+    paddingBottom: 8
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 2
+  },
+  navDock: {
+    paddingHorizontal: 2
   },
   header: {
     marginBottom: 16
