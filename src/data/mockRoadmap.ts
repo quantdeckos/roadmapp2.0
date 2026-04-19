@@ -36,6 +36,42 @@ const buildPhaseTasks = (phaseNumber: number) => [
     category: "health" as const,
     completed: false,
     repeatUntilDone: true
+  },
+  {
+    id: `phase-${phaseNumber}-task-5`,
+    title: "Deep work sprint",
+    exp: 15,
+    durationMinutes: 45,
+    category: "execution" as const,
+    completed: false,
+    repeatUntilDone: true
+  },
+  {
+    id: `phase-${phaseNumber}-task-6`,
+    title: "Review milestone blockers",
+    exp: 10,
+    durationMinutes: 20,
+    category: "strategy" as const,
+    completed: false,
+    repeatUntilDone: true
+  },
+  {
+    id: `phase-${phaseNumber}-task-7`,
+    title: "Write progress summary",
+    exp: 10,
+    durationMinutes: 15,
+    category: "execution" as const,
+    completed: false,
+    repeatUntilDone: true
+  },
+  {
+    id: `phase-${phaseNumber}-task-8`,
+    title: "Plan tomorrow priorities",
+    exp: 10,
+    durationMinutes: 12,
+    category: "strategy" as const,
+    completed: false,
+    repeatUntilDone: true
   }
 ];
 
