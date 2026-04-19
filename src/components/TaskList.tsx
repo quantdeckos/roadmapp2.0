@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { RoadmapPhase } from "../types/domain";
 import { colors } from "../theme/colors";
 
@@ -18,13 +18,13 @@ export const TaskList = ({ phase, nextPhaseLocked, onToggleTask, onMoveToNextPha
         <Text style={styles.phaseTitle}>phase {phase.number}</Text>
       </View>
 
-      <View style={styles.taskStack}>
+      <ScrollView style={styles.taskScroll} contentContainerStyle={styles.taskStack} showsVerticalScrollIndicator={false}>
         {phase.tasks.map((task) => (
           <TouchableOpacity key={task.id} onPress={() => onToggleTask(task.id)} style={styles.taskRow}>
             <View style={[styles.circle, task.completed && styles.circleDone]}>
               {task.completed ? <Ionicons name="checkmark" size={14} color={colors.charcoal} /> : null}
             </View>
-            <View>
+            <View style={styles.taskCopy}>
               <Text style={[styles.taskText, task.completed && styles.taskDone]}>{task.title} {task.exp} exp</Text>
               <Text style={styles.taskMeta}>
                 {task.category} • {task.durationMinutes}min • repeat until done
@@ -32,7 +32,7 @@ export const TaskList = ({ phase, nextPhaseLocked, onToggleTask, onMoveToNextPha
             </View>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
 
       <TouchableOpacity
         onPress={onMoveToNextPhase}
@@ -74,12 +74,19 @@ const styles = StyleSheet.create({
     fontWeight: "700"
   },
   taskStack: {
-    gap: 16
+    gap: 14,
+    paddingBottom: 6
+  },
+  taskScroll: {
+    flex: 1
   },
   taskRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12
+  },
+  taskCopy: {
+    flex: 1
   },
   circle: {
     width: 22,
@@ -109,7 +116,7 @@ const styles = StyleSheet.create({
     marginTop: 3
   },
   nextButton: {
-    marginTop: 20,
+    marginTop: 16,
     borderRadius: 12,
     backgroundColor: colors.neon,
     paddingVertical: 12,
