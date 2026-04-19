@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { initialRoadmapProject } from "../data/mockRoadmap";
 import { RoadmapPhase, RoadmapProject } from "../types/domain";
-import { fetchRoadmapProject, updateProjectPhase, updateTaskCompletion } from "../services/roadmapRepo";
+import { generateRoadmapPlan } from "../services/aiPlanner";
+import {
+  createProjectFromAiPlan,
+  fetchRoadmapProject,
+  updateProjectPhase,
+  updateTaskCompletion
+} from "../services/roadmapRepo";
 
 const areAllTasksComplete = (phase: RoadmapPhase) => phase.tasks.every((task) => task.completed);
 
@@ -9,6 +15,8 @@ export const useRoadmap = () => {
   const [project, setProject] = useState<RoadmapProject>(initialRoadmapProject);
   const [loading, setLoading] = useState(true);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [generatingAiProject, setGeneratingAiProject] = useState(false);
+  const [aiGenerationError, setAiGenerationError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProject = async () => {
@@ -120,6 +128,34 @@ export const useRoadmap = () => {
   const totalTaskCount = useMemo(() => project.phases.flatMap((phase) => phase.tasks).length, [project]);
   const progressPercent = Math.round((completedTaskCount / totalTaskCount) * 100);
 
+  const generateProjectWithAi = async (input: {
+    projectName: string;
+    objective: string;
+    phaseCount: number;
+  }): Promise<boolean> => {
+    setGeneratingAiProject(true);
+    setAiGenerationError(null);
+
+    try {
+      const plan = await generateRoadmapPlan({
+        projectName: input.projectName,
+        objective: input.objective,
+        phaseCount: input.phaseCount
+      });
+
+      const createdProject = await createProjectFromAiPlan(input.projectName, input.phaseCount, plan);
+      setProject(createdProject);
+      setSyncError(null);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate roadmap.";
+      setAiGenerationError(message);
+      return false;
+    } finally {
+      setGeneratingAiProject(false);
+    }
+  };
+
   return {
     project,
     currentPhase,
@@ -127,7 +163,10 @@ export const useRoadmap = () => {
     progressPercent,
     loading,
     syncError,
+    generatingAiProject,
+    aiGenerationError,
     toggleTask,
-    moveToNextPhase
+    moveToNextPhase,
+    generateProjectWithAi
   };
 };
