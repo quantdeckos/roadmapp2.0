@@ -1,5 +1,5 @@
 import { initialRoadmapProject } from "../data/mockRoadmap";
-import { RoadmapPhase, RoadmapProject, RoadmapTask } from "../types/domain";
+import { AiGeneratedPlan, RoadmapPhase, RoadmapProject, RoadmapTask } from "../types/domain";
 import { isSupabaseConfigured, supabase } from "./supabase";
 
 type DbProjectRow = {
@@ -94,7 +94,7 @@ const seedDefaultProject = async (): Promise<RoadmapProject> => {
       phase_count: initialRoadmapProject.phases.length
     })
     .select("id, name, due_date, current_phase_number")
-    .single();
+    .single<DbProjectRow>();
 
   if (projectError || !projectData) {
     throw new Error(projectError?.message ?? "Unable to create project.");
@@ -219,4 +219,78 @@ export const updateProjectPhase = async (projectId: string, nextPhaseNumber: num
   if (unlockError) {
     throw new Error(unlockError.message);
   }
+};
+
+export const createProjectFromAiPlan = async (
+  projectName: string,
+  phaseCount: number,
+  plan: AiGeneratedPlan
+): Promise<RoadmapProject> => {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error("Supabase is not configured. Add env values first.");
+  }
+
+  const normalizedPhases = plan.phases
+    .slice(0, phaseCount)
+    .map((phase, index) => ({
+      phaseNumber: index + 1,
+      title: phase.goal.trim() || `Phase ${index + 1}`,
+      tasks: phase.tasks.length > 0 ? phase.tasks : ["Define deliverable", "Execute work block", "Review outcomes"]
+    }));
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + Math.max(phaseCount * 4, 30));
+
+  const { data: projectData, error: projectError } = await supabase
+    .from("projects")
+    .insert({
+      name: projectName,
+      due_date: dueDate.toISOString().slice(0, 10),
+      phase_count: normalizedPhases.length,
+      current_phase_number: 1
+    })
+    .select("id, name, due_date, current_phase_number")
+    .single();
+
+  if (projectError || !projectData) {
+    throw new Error(projectError?.message ?? "Unable to create AI project.");
+  }
+
+  const phaseRows = normalizedPhases.map((phase) => ({
+    project_id: projectData.id,
+    phase_number: phase.phaseNumber,
+    title: phase.title,
+    is_locked: phase.phaseNumber !== 1
+  }));
+
+  const { data: insertedPhases, error: phaseError } = await supabase
+    .from("phases")
+    .insert(phaseRows)
+    .select("id, phase_number");
+  if (phaseError || !insertedPhases) {
+    throw new Error(phaseError?.message ?? "Unable to insert AI phases.");
+  }
+
+  const phaseIdMap = new Map<number, string>();
+  insertedPhases.forEach((phase) => phaseIdMap.set(phase.phase_number, phase.id));
+
+  const taskRows = normalizedPhases.flatMap((phase) =>
+    phase.tasks.slice(0, 8).map((task, index) => ({
+      phase_id: phaseIdMap.get(phase.phaseNumber),
+      title: task.trim() || `Task ${index + 1}`,
+      exp: 10,
+      duration_minutes: 20,
+      category: "strategy",
+      completed: false,
+      repeat_until_done: true,
+      sort_order: index
+    }))
+  );
+
+  const { error: taskError } = await supabase.from("tasks").insert(taskRows);
+  if (taskError) {
+    throw new Error(taskError.message);
+  }
+
+  return fetchRoadmapProject(projectData.id);
 };
