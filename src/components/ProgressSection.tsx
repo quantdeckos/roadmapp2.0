@@ -21,23 +21,23 @@ export const ProgressSection = ({ progressPercent, dueDateLabel }: ProgressSecti
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginTop: 14,
+    marginTop: 0,
     paddingHorizontal: 16
   },
   title: {
     color: colors.textPrimary,
-    fontSize: 34,
+    fontSize: 28,
     fontWeight: "500"
   },
   percent: {
     color: colors.textPrimary,
-    fontSize: 70,
+    fontSize: 56,
     fontWeight: "700",
-    lineHeight: 76
+    lineHeight: 60
   },
   progressTrack: {
-    marginTop: 8,
-    height: 54,
+    marginTop: 6,
+    height: 48,
     borderRadius: 30,
     overflow: "hidden",
     backgroundColor: "#5C6470",
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   dueText: {
     alignSelf: "flex-end",
     color: colors.textPrimary,
-    fontSize: 22,
+    fontSize: 19,
     marginRight: 18,
     fontWeight: "500"
   }
