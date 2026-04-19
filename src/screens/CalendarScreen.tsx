@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomNav } from "../components/BottomNav";
+import { scaleByWidth } from "../theme/responsive";
 import { colors } from "../theme/colors";
 import { TabKey } from "../types/domain";
 
@@ -18,6 +20,11 @@ const scheduleData = [
 
 export const CalendarScreen = ({ activeTab, onTabPress }: CalendarScreenProps) => {
   const [selectedDay, setSelectedDay] = useState(16);
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const titleSize = scaleByWidth(width, 38, 0.8, 1.06);
+  const subtitleSize = scaleByWidth(width, 16, 0.88, 1.04);
+  const dayBoxWidth = Math.max(40, Math.min(50, Math.floor((width - 54) / 7)));
 
   const weekDays = useMemo(
     () => [
@@ -33,18 +40,18 @@ export const CalendarScreen = ({ activeTab, onTabPress }: CalendarScreenProps) =
   );
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingTop: Math.max(16, insets.top + 6), paddingBottom: Math.max(8, insets.bottom + 4) }]}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Calendar</Text>
-          <Text style={styles.subtitle}>Schedule your repeating phase tasks</Text>
+          <Text style={[styles.title, { fontSize: titleSize }]}>Calendar</Text>
+          <Text style={[styles.subtitle, { fontSize: subtitleSize }]}>Schedule your repeating phase tasks</Text>
         </View>
 
         <View style={styles.weekRow}>
           {weekDays.map(([day, value]) => {
             const selected = selectedDay === value;
             return (
-              <TouchableOpacity key={String(value)} onPress={() => setSelectedDay(value)} style={styles.dayWrapper}>
+              <TouchableOpacity key={String(value)} onPress={() => setSelectedDay(value)} style={[styles.dayWrapper, { width: dayBoxWidth }]}>
                 <Text style={[styles.dayText, selected && styles.daySelected]}>{day}</Text>
                 <Text style={[styles.dateText, selected && styles.daySelected]}>{value}</Text>
               </TouchableOpacity>
@@ -76,7 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.charcoal,
     paddingHorizontal: 16,
-    paddingTop: 70,
+    paddingTop: 20,
     paddingBottom: 8
   },
   content: {
@@ -91,12 +98,10 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.textPrimary,
-    fontSize: 38,
     fontWeight: "700"
   },
   subtitle: {
     color: colors.textMuted,
-    fontSize: 16,
     marginTop: 4
   },
   weekRow: {
@@ -107,7 +112,6 @@ const styles = StyleSheet.create({
   dayWrapper: {
     alignItems: "center",
     backgroundColor: colors.panelDark,
-    width: 46,
     borderRadius: 14,
     paddingVertical: 8
   },

@@ -338,6 +338,12 @@ export const useRoadmap = () => {
     }));
   };
 
+  const resetProjectToBlank = () => {
+    setProject(initialRoadmapProject);
+    setPhaseStartedAtMap({});
+    setSyncError(null);
+  };
+
   const deleteTaskFromPhase = (taskId: string) => {
     setProject((prev) => ({
       ...prev,
@@ -346,6 +352,14 @@ export const useRoadmap = () => {
         tasks: phase.tasks.filter((task) => task.id !== taskId)
       }))
     }));
+  };
+
+  const archiveCurrentProject = () => {
+    resetProjectToBlank();
+  };
+
+  const startNewProject = () => {
+    resetProjectToBlank();
   };
 
   return {
@@ -365,6 +379,8 @@ export const useRoadmap = () => {
     deleteTaskFromPhase,
     addTaskAttachment,
     addTaskToPhase,
+    archiveCurrentProject,
+    startNewProject,
     generateProjectWithAi,
     addPhaseWithTasks
   };

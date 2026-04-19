@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
+import { StatusBar, StyleSheet, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { CalendarScreen } from "./src/screens/CalendarScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { ProjectsScreen } from "./src/screens/ProjectsScreen";
@@ -37,16 +38,21 @@ export default function App() {
   }, [activeTab]);
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" />
-      <View style={styles.container}>{activeScreen}</View>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView edges={["left", "right"]} style={[styles.safe, activeTab === "roadmap" && styles.safeRoadmap]}>
+        <StatusBar barStyle={activeTab === "roadmap" ? "dark-content" : "light-content"} />
+        <View style={styles.container}>{activeScreen}</View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
+    backgroundColor: colors.charcoal
+  },
+  safeRoadmap: {
     backgroundColor: colors.charcoal
   },
   container: {

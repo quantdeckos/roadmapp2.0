@@ -10,6 +10,7 @@ interface TaskListProps {
   phase: RoadmapPhase | null;
   phaseElapsedSeconds: number;
   nextPhaseLocked: boolean;
+  showCompletionActions: boolean;
   onToggleTask: (taskId: string) => void;
   onMoveToNextPhase: () => void;
   onUpdateTask: (
@@ -38,6 +39,8 @@ interface TaskListProps {
     }
   ) => void;
   onStartRoadmap: () => void;
+  onArchiveProject: () => void;
+  onStartNewProject: () => void;
 }
 
 const formatElapsed = (seconds: number) => {
@@ -170,13 +173,16 @@ export const TaskList = ({
   phase,
   phaseElapsedSeconds,
   nextPhaseLocked,
+  showCompletionActions,
   onToggleTask,
   onMoveToNextPhase,
   onUpdateTask,
   onDeleteTask,
   onUploadTaskFile,
   onAddTaskToPhase,
-  onStartRoadmap
+  onStartRoadmap,
+  onArchiveProject,
+  onStartNewProject
 }: TaskListProps) => {
   const [editingTask, setEditingTask] = useState<RoadmapTask | null>(null);
   const [editTagInput, setEditTagInput] = useState("");
@@ -501,15 +507,26 @@ export const TaskList = ({
         ))}
       </ScrollView>
 
-      <TouchableOpacity
-        onPress={onMoveToNextPhase}
-        disabled={nextPhaseLocked}
-        style={[styles.nextButton, nextPhaseLocked && styles.nextButtonLocked]}
-      >
-        <Text style={[styles.nextButtonText, nextPhaseLocked && styles.nextButtonTextLocked]}>
-          {nextPhaseLocked ? "Complete all tasks to unlock phase" : "Move to next phase"}
-        </Text>
-      </TouchableOpacity>
+      {showCompletionActions ? (
+        <View style={styles.completionActionsRow}>
+          <TouchableOpacity style={[styles.nextButton, styles.archiveButton]} onPress={onArchiveProject}>
+            <Text style={[styles.nextButtonText, styles.archiveButtonText]}>Archive</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.nextButton, styles.startNewProjectButton]} onPress={onStartNewProject}>
+            <Text style={styles.nextButtonText}>Start New Project</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity
+          onPress={onMoveToNextPhase}
+          disabled={nextPhaseLocked}
+          style={[styles.nextButton, nextPhaseLocked && styles.nextButtonLocked]}
+        >
+          <Text style={[styles.nextButtonText, nextPhaseLocked && styles.nextButtonTextLocked]}>
+            {nextPhaseLocked ? "Complete all tasks to unlock phase" : "Move to next phase"}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <Modal
         visible={editingTask !== null || isAddingNewTaskFromEdit}
@@ -1122,6 +1139,21 @@ const styles = StyleSheet.create({
   },
   nextButtonTextLocked: {
     color: colors.textMuted
+  },
+  completionActionsRow: {
+    marginTop: 10,
+    flexDirection: "row",
+    gap: 10
+  },
+  archiveButton: {
+    flex: 1,
+    backgroundColor: "#2B2F38"
+  },
+  archiveButtonText: {
+    color: colors.textPrimary
+  },
+  startNewProjectButton: {
+    flex: 1
   },
   emptyWrap: {
     flex: 1,

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { AiRoadmapModal } from "../components/AiRoadmapModal";
 import { BottomNav } from "../components/BottomNav";
 import { PhaseBuilderModal } from "../components/PhaseBuilderModal";
@@ -8,6 +8,7 @@ import { ProgressSection } from "../components/ProgressSection";
 import { TaskList } from "../components/TaskList";
 import { TopHeader } from "../components/TopHeader";
 import { useRoadmap } from "../state/useRoadmap";
+import { scaleByWidth } from "../theme/responsive";
 import { colors } from "../theme/colors";
 import { TabKey } from "../types/domain";
 
@@ -17,6 +18,9 @@ interface RoadmapScreenProps {
 }
 
 export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => {
+  const { width } = useWindowDimensions();
+  const cardRadius = scaleByWidth(width, 30, 0.82, 1.0);
+
   const {
     project,
     currentPhase,
@@ -34,6 +38,8 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
     deleteTaskFromPhase,
     addTaskAttachment,
     addTaskToPhase,
+    archiveCurrentProject,
+    startNewProject,
     generateProjectWithAi,
     addPhaseWithTasks
   } = useRoadmap();
@@ -50,6 +56,10 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
     }).start();
   }, [currentPhase?.number, phaseTransition]);
 
+  const allPhasesComplete =
+    project.phases.length > 0 &&
+    project.phases.every((phase) => phase.tasks.length > 0 && phase.tasks.every((task) => task.completed));
+
   return (
     <View style={styles.screen}>
       <TopHeader
@@ -61,7 +71,7 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
       {syncError ? <Text style={styles.errorText}>Sync warning: {syncError}</Text> : null}
 
       <View style={styles.middleSection}>
-        <View style={styles.roadmapCard}>
+        <View style={[styles.roadmapCard, { borderRadius: cardRadius }]}>
           {currentPhase ? (
             <PhaseRail
               activePhase={currentPhase.number}
@@ -81,6 +91,12 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
               onUploadTaskFile={addTaskAttachment}
               onAddTaskToPhase={addTaskToPhase}
               onStartRoadmap={() => setPhaseBuilderVisible(true)}
+              showCompletionActions={allPhasesComplete}
+              onArchiveProject={archiveCurrentProject}
+              onStartNewProject={() => {
+                startNewProject();
+                setPhaseBuilderVisible(true);
+              }}
             />
           </Animated.View>
         </View>
@@ -122,7 +138,7 @@ const styles = StyleSheet.create({
   middleSection: {
     flex: 1,
     minHeight: 0,
-    paddingBottom: 8
+    paddingBottom: 0
   },
   roadmapCard: {
     marginTop: 12,
@@ -149,11 +165,12 @@ const styles = StyleSheet.create({
     fontSize: 13
   },
   navDock: {
-    marginTop: 8,
+    marginTop: 12,
+    marginBottom: 8,
     marginHorizontal: 16
   },
   progressDock: {
-    marginTop: 2
+    marginTop: 10
   },
   tasksContainer: {
     flex: 1,

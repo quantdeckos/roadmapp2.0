@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { scaleByWidth } from "../theme/responsive";
 import { colors } from "../theme/colors";
 
 interface ProgressSectionProps {
@@ -7,13 +8,19 @@ interface ProgressSectionProps {
 }
 
 export const ProgressSection = ({ progressPercent, dueDateLabel }: ProgressSectionProps) => {
+  const { width } = useWindowDimensions();
+  const titleSize = scaleByWidth(width, 28, 0.82, 1.02);
+  const percentSize = scaleByWidth(width, 56, 0.74, 1.02);
+  const dueSize = scaleByWidth(width, 19, 0.82, 1.0);
+  const trackHeight = scaleByWidth(width, 48, 0.84, 1.0);
+
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.title}>Project Progress</Text>
-      <Text style={styles.percent}>{progressPercent}%</Text>
-      <View style={styles.progressTrack}>
+      <Text style={[styles.title, { fontSize: titleSize }]}>Project Progress</Text>
+      <Text style={[styles.percent, { fontSize: percentSize, lineHeight: Math.round(percentSize * 1.07) }]}>{progressPercent}%</Text>
+      <View style={[styles.progressTrack, { height: trackHeight, borderRadius: Math.round(trackHeight / 2) }]}>
         <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
-        <Text style={styles.dueText}>Due {dueDateLabel}</Text>
+        <Text style={[styles.dueText, { fontSize: dueSize }]}>Due {dueDateLabel}</Text>
       </View>
     </View>
   );
@@ -26,12 +33,10 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.textPrimary,
-    fontSize: 28,
     fontWeight: "500"
   },
   percent: {
     color: colors.textPrimary,
-    fontSize: 56,
     fontWeight: "700",
     lineHeight: 60
   },
@@ -54,7 +59,6 @@ const styles = StyleSheet.create({
   dueText: {
     alignSelf: "flex-end",
     color: colors.textPrimary,
-    fontSize: 19,
     marginRight: 18,
     fontWeight: "500"
   }
