@@ -2,9 +2,24 @@ export type TabKey = "home" | "projects" | "roadmap" | "calendar" | "settings";
 
 export type TaskCategory = "health" | "finance" | "strategy" | "execution";
 
+export interface TaskAttachment {
+  id: string;
+  name: string;
+  uri: string;
+}
+
 export interface RoadmapTask {
   id: string;
   title: string;
+  description?: string;
+  details?: string;
+  location?: string;
+  date?: string;
+  time?: string;
+  timerMinutes?: number;
+  tags?: string[];
+  dueDate?: string;
+  attachments?: TaskAttachment[];
   exp: number;
   durationMinutes: number;
   category: TaskCategory;

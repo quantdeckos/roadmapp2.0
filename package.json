@@ -20,6 +20,7 @@
     "expo": "~52.0.30",
     "expo-asset": "~11.0.5",
     "expo-constants": "~17.0.5",
+    "expo-document-picker": "^55.0.13",
     "expo-font": "~13.0.4",
     "expo-notifications": "~0.29.14",
     "expo-status-bar": "~2.0.1",

@@ -58,7 +58,7 @@ const normalizePlan = (candidate: unknown, phaseCount: number): AiGeneratedPlan 
 
 export const generateRoadmapPlan = async (input: AiSuggestionInput): Promise<AiGeneratedPlan> => {
   if (!OPENAI_API_KEY) {
-    throw new Error("Missing EXPO_PUBLIC_OPENAI_API_KEY");
+    return buildFallbackPlan(input);
   }
 
   const prompt = `
@@ -91,8 +91,7 @@ Return JSON only.
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`AI generation failed: ${errorText}`);
+    return buildFallbackPlan(input);
   }
 
   const data = await response.json();

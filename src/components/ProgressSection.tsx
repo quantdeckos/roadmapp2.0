@@ -12,7 +12,7 @@ export const ProgressSection = ({ progressPercent, dueDateLabel }: ProgressSecti
       <Text style={styles.title}>Project Progress</Text>
       <Text style={styles.percent}>{progressPercent}%</Text>
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${Math.max(progressPercent, 8)}%` }]} />
+        <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
         <Text style={styles.dueText}>Due {dueDateLabel}</Text>
       </View>
     </View>

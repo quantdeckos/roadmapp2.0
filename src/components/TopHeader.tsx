@@ -9,6 +9,22 @@ interface TopHeaderProps {
 }
 
 export const TopHeader = ({ onMenuPress, onNewProjectPress, onAskAiPress }: TopHeaderProps) => {
+  const today = new Date();
+  const monthLabel = today.toLocaleDateString(undefined, { month: "long" });
+  const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const startOfWeek = new Date(today);
+  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  const weekItems = Array.from({ length: 7 }, (_, offset) => {
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + offset);
+    return {
+      day: weekdayLabels[date.getDay()],
+      dateNumber: String(date.getDate()),
+      isToday: date.toDateString() === today.toDateString()
+    };
+  });
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.searchRow}>
@@ -23,25 +39,18 @@ export const TopHeader = ({ onMenuPress, onNewProjectPress, onAskAiPress }: TopH
       </View>
 
       <View style={styles.titleRow}>
-        <Text style={styles.month}>March</Text>
+        <Text style={styles.month}>{monthLabel}</Text>
         <TouchableOpacity onPress={onNewProjectPress} style={styles.plusButton}>
           <Ionicons name="add" size={28} color={colors.charcoal} />
+          <Text style={styles.plusLabel}>Add Phase</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.weekRow}>
-        {[
-          ["Sun", "15"],
-          ["Mon", "16"],
-          ["Tue", "17"],
-          ["Wed", "18"],
-          ["Thu", "19"],
-          ["Fri", "20"],
-          ["Sat", "21"]
-        ].map(([day, date], index) => (
-          <View key={day} style={[styles.dayItem, index === 1 && styles.activeDay]}>
-            <Text style={[styles.dayLabel, index === 1 && styles.activeDayText]}>{day}</Text>
-            <Text style={[styles.dateLabel, index === 1 && styles.activeDayText]}>{date}</Text>
+        {weekItems.map((item) => (
+          <View key={`${item.day}-${item.dateNumber}`} style={[styles.dayItem, item.isToday && styles.activeDay]}>
+            <Text style={[styles.dayLabel, item.isToday && styles.activeDayText]}>{item.day}</Text>
+            <Text style={[styles.dateLabel, item.isToday && styles.activeDayText]}>{item.dateNumber}</Text>
           </View>
         ))}
       </View>
@@ -98,10 +107,16 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   plusButton: {
-    width: 44,
-    height: 44,
+    minHeight: 44,
+    paddingHorizontal: 6,
     alignItems: "center",
     justifyContent: "center"
+  },
+  plusLabel: {
+    color: colors.charcoal,
+    fontSize: 11,
+    fontWeight: "700",
+    marginTop: -2
   },
   weekRow: {
     marginTop: 8,

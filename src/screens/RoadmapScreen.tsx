@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import { AiRoadmapModal } from "../components/AiRoadmapModal";
 import { BottomNav } from "../components/BottomNav";
+import { PhaseBuilderModal } from "../components/PhaseBuilderModal";
 import { PhaseRail } from "../components/PhaseRail";
 import { ProgressSection } from "../components/ProgressSection";
 import { TaskList } from "../components/TaskList";
@@ -21,15 +22,23 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
     currentPhase,
     nextPhaseLocked,
     progressPercent,
+    currentPhaseElapsedSeconds,
     loading,
     syncError,
     generatingAiProject,
     aiGenerationError,
     toggleTask,
     moveToNextPhase,
-    generateProjectWithAi
+    selectPhase,
+    updateTask,
+    deleteTaskFromPhase,
+    addTaskAttachment,
+    addTaskToPhase,
+    generateProjectWithAi,
+    addPhaseWithTasks
   } = useRoadmap();
   const [aiModalVisible, setAiModalVisible] = useState(false);
+  const [phaseBuilderVisible, setPhaseBuilderVisible] = useState(false);
   const phaseTransition = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -39,31 +48,43 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
       duration: 260,
       useNativeDriver: true
     }).start();
-  }, [currentPhase.number, phaseTransition]);
+  }, [currentPhase?.number, phaseTransition]);
 
   return (
     <View style={styles.screen}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <TopHeader
-          onMenuPress={() => {}}
-          onNewProjectPress={() => setAiModalVisible(true)}
-          onAskAiPress={() => setAiModalVisible(true)}
-        />
-        {loading ? <Text style={styles.infoText}>Syncing project from Supabase...</Text> : null}
-        {syncError ? <Text style={styles.errorText}>Sync warning: {syncError}</Text> : null}
+      <TopHeader
+        onMenuPress={() => {}}
+        onNewProjectPress={() => setPhaseBuilderVisible(true)}
+        onAskAiPress={() => setAiModalVisible(true)}
+      />
+      {loading ? <Text style={styles.infoText}>Syncing project from Supabase...</Text> : null}
+      {syncError ? <Text style={styles.errorText}>Sync warning: {syncError}</Text> : null}
 
+      <View style={styles.middleSection}>
         <View style={styles.roadmapCard}>
-          <PhaseRail activePhase={currentPhase.number} maxPhase={project.phases.length} />
-          <Animated.View style={[styles.tasksContainer, { transform: [{ translateY: phaseTransition }] }]}> 
+          {currentPhase ? (
+            <PhaseRail
+              activePhase={currentPhase.number}
+              maxPhase={project.phases.length}
+              onSelectPhase={selectPhase}
+            />
+          ) : null}
+          <Animated.View style={[styles.tasksContainer, { transform: [{ translateY: phaseTransition }] }]}>
             <TaskList
               phase={currentPhase}
+              phaseElapsedSeconds={currentPhaseElapsedSeconds}
               nextPhaseLocked={nextPhaseLocked}
               onToggleTask={toggleTask}
               onMoveToNextPhase={moveToNextPhase}
+              onUpdateTask={updateTask}
+              onDeleteTask={deleteTaskFromPhase}
+              onUploadTaskFile={addTaskAttachment}
+              onAddTaskToPhase={addTaskToPhase}
+              onStartRoadmap={() => setPhaseBuilderVisible(true)}
             />
           </Animated.View>
         </View>
-      </ScrollView>
+      </View>
       <View style={styles.progressDock}>
         <ProgressSection progressPercent={progressPercent} dueDateLabel={project.dueDateLabel} />
       </View>
@@ -82,6 +103,12 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
           }
         }}
       />
+      <PhaseBuilderModal
+        visible={phaseBuilderVisible}
+        nextPhaseNumber={project.phases.length + 1}
+        onClose={() => setPhaseBuilderVisible(false)}
+        onCreate={(input) => addPhaseWithTasks(input)}
+      />
     </View>
   );
 };
@@ -92,11 +119,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.charcoal,
     paddingBottom: 8
   },
-  scroll: {
-    flex: 1
-  },
-  content: {
-    paddingBottom: 18
+  middleSection: {
+    flex: 1,
+    minHeight: 0,
+    paddingBottom: 8
   },
   roadmapCard: {
     marginTop: 12,
@@ -104,8 +130,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colors.charcoalSoft,
     borderRadius: 30,
-    padding: 10,
-    minHeight: 520
+    paddingVertical: 10,
+    paddingLeft: 8,
+    paddingRight: 10,
+    flex: 1,
+    overflow: "hidden"
   },
   infoText: {
     color: colors.textMuted,
@@ -119,14 +148,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 18,
     fontSize: 13
   },
-  progressDock: {
-    marginTop: 6
-  },
   navDock: {
     marginTop: 8,
     marginHorizontal: 16
   },
+  progressDock: {
+    marginTop: 2
+  },
   tasksContainer: {
-    flex: 1
+    flex: 1,
+    minWidth: 0,
+    minHeight: 0,
+    marginLeft: 6
   }
 });

@@ -82,14 +82,11 @@ const seedDefaultProject = async (): Promise<RoadmapProject> => {
     return initialRoadmapProject;
   }
 
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + 90);
-
   const { data: projectData, error: projectError } = await supabase
     .from("projects")
     .insert({
       name: initialRoadmapProject.name,
-      due_date: dueDate.toISOString().slice(0, 10),
+      due_date: null,
       current_phase_number: initialRoadmapProject.currentPhaseNumber,
       phase_count: initialRoadmapProject.phases.length
     })
@@ -98,6 +95,16 @@ const seedDefaultProject = async (): Promise<RoadmapProject> => {
 
   if (projectError || !projectData) {
     throw new Error(projectError?.message ?? "Unable to create project.");
+  }
+
+  if (initialRoadmapProject.phases.length === 0) {
+    return {
+      id: projectData.id,
+      name: projectData.name,
+      dueDateLabel: formatDueDateLabel(projectData.due_date),
+      currentPhaseNumber: projectData.current_phase_number,
+      phases: []
+    };
   }
 
   const phaseRows = initialRoadmapProject.phases.map((phase) => ({
@@ -226,10 +233,6 @@ export const createProjectFromAiPlan = async (
   phaseCount: number,
   plan: AiGeneratedPlan
 ): Promise<RoadmapProject> => {
-  if (!isSupabaseConfigured || !supabase) {
-    throw new Error("Supabase is not configured. Add env values first.");
-  }
-
   const normalizedPhases = plan.phases
     .slice(0, phaseCount)
     .map((phase, index) => ({
@@ -237,6 +240,29 @@ export const createProjectFromAiPlan = async (
       title: phase.goal.trim() || `Phase ${index + 1}`,
       tasks: phase.tasks.length > 0 ? phase.tasks : ["Define deliverable", "Execute work block", "Review outcomes"]
     }));
+
+  if (!isSupabaseConfigured || !supabase) {
+    return {
+      id: `local-${Date.now()}`,
+      name: projectName,
+      dueDateLabel: "No due date",
+      currentPhaseNumber: normalizedPhases.length > 0 ? 1 : 0,
+      phases: normalizedPhases.map((phase) => ({
+        id: `local-phase-${phase.phaseNumber}`,
+        number: phase.phaseNumber,
+        title: phase.title,
+        tasks: phase.tasks.slice(0, 8).map((task, index) => ({
+          id: `local-phase-${phase.phaseNumber}-task-${index + 1}`,
+          title: task.trim() || `Task ${index + 1}`,
+          exp: 10,
+          durationMinutes: 20,
+          category: "strategy",
+          completed: false,
+          repeatUntilDone: true
+        }))
+      }))
+    };
+  }
 
   const dueDate = new Date();
   dueDate.setDate(dueDate.getDate() + Math.max(phaseCount * 4, 30));
