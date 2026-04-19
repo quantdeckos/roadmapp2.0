@@ -42,6 +42,16 @@ cp .env.example .env
 npm run start
 ```
 
+## Live Link (GitHub Pages)
+
+- Expected URL: `https://quantdeckos.github.io/roadmapp2.0/`
+- Auto-deploy workflow: [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml)
+
+If this is the first Pages deploy for the repo, enable:
+1. GitHub repo `Settings` → `Pages`
+2. `Build and deployment` source: `GitHub Actions`
+3. Re-run the `Deploy Expo Web to GitHub Pages` workflow from `Actions` if needed.
+
 ## Environment Variables
 
 Set these in `.env`:
