@@ -5,20 +5,21 @@ import { colors } from "../theme/colors";
 interface TopHeaderProps {
   onMenuPress: () => void;
   onNewProjectPress: () => void;
+  onAskAiPress: () => void;
 }
 
-export const TopHeader = ({ onMenuPress, onNewProjectPress }: TopHeaderProps) => {
+export const TopHeader = ({ onMenuPress, onNewProjectPress, onAskAiPress }: TopHeaderProps) => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.searchRow}>
         <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
           <Ionicons name="menu" size={22} color={colors.charcoal} />
         </TouchableOpacity>
-        <View style={styles.searchPill}>
+        <TouchableOpacity style={styles.searchPill} onPress={onAskAiPress}>
           <Ionicons name="sparkles-outline" size={16} color={colors.charcoalSoft} />
           <Text style={styles.searchText}>Ask AI / Search Projects</Text>
           <Ionicons name="arrow-forward" size={16} color={colors.charcoalSoft} />
-        </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.titleRow}>
