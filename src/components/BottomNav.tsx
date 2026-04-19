@@ -42,8 +42,6 @@ const pickColor = (activeTab: TabKey, key: TabKey) => (activeTab === key ? color
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginTop: 12,
-    marginBottom: 8,
     height: 60,
     borderRadius: 20,
     backgroundColor: "#1C1F26",
