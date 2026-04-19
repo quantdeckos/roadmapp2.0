@@ -1,8 +1,62 @@
-import { AiSuggestionInput } from "../types/domain";
+import { AiGeneratedPlan, AiSuggestionInput } from "../types/domain";
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 
-export const generateRoadmapPlan = async (input: AiSuggestionInput) => {
+const buildFallbackPlan = (input: AiSuggestionInput): AiGeneratedPlan => ({
+  phases: Array.from({ length: input.phaseCount }, (_, index) => ({
+    phaseNumber: index + 1,
+    goal: `Phase ${index + 1}: ${input.objective}`,
+    tasks: [
+      "Define the smallest measurable deliverable",
+      "Execute one focused work block",
+      "Review progress and adjust next action"
+    ]
+  }))
+});
+
+const extractJsonObject = (text: string) => {
+  const firstBrace = text.indexOf("{");
+  const lastBrace = text.lastIndexOf("}");
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+    return null;
+  }
+  return text.slice(firstBrace, lastBrace + 1);
+};
+
+const normalizePlan = (candidate: unknown, phaseCount: number): AiGeneratedPlan | null => {
+  if (!candidate || typeof candidate !== "object" || !Array.isArray((candidate as { phases?: unknown[] }).phases)) {
+    return null;
+  }
+
+  const rawPhases = (candidate as { phases: unknown[] }).phases;
+  const phases = rawPhases
+    .map((phase, index) => {
+      const item = phase as { phaseNumber?: unknown; goal?: unknown; tasks?: unknown };
+      const tasks = Array.isArray(item.tasks)
+        ? item.tasks.filter((task): task is string => typeof task === "string")
+        : [];
+
+      return {
+        phaseNumber: typeof item.phaseNumber === "number" ? item.phaseNumber : index + 1,
+        goal: typeof item.goal === "string" ? item.goal : `Phase ${index + 1}`,
+        tasks: tasks.slice(0, 6)
+      };
+    })
+    .filter((phase) => phase.tasks.length > 0);
+
+  if (phases.length === 0) {
+    return null;
+  }
+
+  return {
+    phases: phases.slice(0, phaseCount).map((phase, index) => ({
+      ...phase,
+      phaseNumber: index + 1
+    }))
+  };
+};
+
+export const generateRoadmapPlan = async (input: AiSuggestionInput): Promise<AiGeneratedPlan> => {
   if (!OPENAI_API_KEY) {
     throw new Error("Missing EXPO_PUBLIC_OPENAI_API_KEY");
   }
@@ -43,6 +97,15 @@ Return JSON only.
 
   const data = await response.json();
   const outputText = data.output_text ?? "";
+  const candidateJson = extractJsonObject(outputText);
+  if (!candidateJson) {
+    return buildFallbackPlan(input);
+  }
 
-  return outputText;
+  try {
+    const parsed = JSON.parse(candidateJson);
+    return normalizePlan(parsed, input.phaseCount) ?? buildFallbackPlan(input);
+  } catch {
+    return buildFallbackPlan(input);
+  }
 };
