@@ -11,7 +11,7 @@ interface SettingsScreenProps {
 export const SettingsScreen = ({ activeTab, onTabPress }: SettingsScreenProps) => {
   return (
     <View style={styles.screen}>
-      <View>
+      <View style={styles.content}>
         <Text style={styles.title}>Settings</Text>
         <View style={styles.card}>
           <Text style={styles.item}>Profile</Text>
@@ -19,7 +19,9 @@ export const SettingsScreen = ({ activeTab, onTabPress }: SettingsScreenProps) =
           <Text style={styles.item}>Support</Text>
         </View>
       </View>
-      <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
+      <View style={styles.navDock}>
+        <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
+      </View>
     </View>
   );
 };
@@ -28,10 +30,16 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.charcoal,
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     paddingTop: 84,
-    paddingBottom: 12
+    paddingBottom: 8
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 2
+  },
+  navDock: {
+    paddingHorizontal: 2
   },
   title: {
     color: colors.textPrimary,
