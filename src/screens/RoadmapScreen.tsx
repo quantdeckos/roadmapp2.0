@@ -1,0 +1,77 @@
+import { useEffect, useRef } from "react";
+import { Animated, ScrollView, StyleSheet, View } from "react-native";
+import { BottomNav } from "../components/BottomNav";
+import { PhaseRail } from "../components/PhaseRail";
+import { ProgressSection } from "../components/ProgressSection";
+import { TaskList } from "../components/TaskList";
+import { TopHeader } from "../components/TopHeader";
+import { useRoadmap } from "../state/useRoadmap";
+import { colors } from "../theme/colors";
+import { TabKey } from "../types/domain";
+
+interface RoadmapScreenProps {
+  activeTab: TabKey;
+  onTabPress: (tab: TabKey) => void;
+}
+
+export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => {
+  const { project, currentPhase, nextPhaseLocked, progressPercent, toggleTask, moveToNextPhase } = useRoadmap();
+  const phaseTransition = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    phaseTransition.setValue(24);
+    Animated.timing(phaseTransition, {
+      toValue: 0,
+      duration: 260,
+      useNativeDriver: true
+    }).start();
+  }, [currentPhase.number, phaseTransition]);
+
+  return (
+    <View style={styles.screen}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <TopHeader onMenuPress={() => {}} onNewProjectPress={() => {}} />
+
+        <View style={styles.roadmapCard}>
+          <PhaseRail activePhase={currentPhase.number} maxPhase={project.phases.length} />
+          <Animated.View style={[styles.tasksContainer, { transform: [{ translateY: phaseTransition }] }]}>
+            <TaskList
+              phase={currentPhase}
+              nextPhaseLocked={nextPhaseLocked}
+              onToggleTask={toggleTask}
+              onMoveToNextPhase={moveToNextPhase}
+            />
+          </Animated.View>
+        </View>
+
+        <ProgressSection progressPercent={progressPercent} dueDateLabel={project.dueDateLabel} />
+        <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.charcoal
+  },
+  scroll: {
+    flex: 1
+  },
+  content: {
+    paddingBottom: 20
+  },
+  roadmapCard: {
+    marginTop: 12,
+    marginHorizontal: 14,
+    flexDirection: "row",
+    backgroundColor: colors.charcoalSoft,
+    borderRadius: 30,
+    padding: 10,
+    minHeight: 420
+  },
+  tasksContainer: {
+    flex: 1
+  }
+});
