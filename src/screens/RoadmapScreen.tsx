@@ -63,9 +63,10 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
             />
           </Animated.View>
         </View>
-
-        <ProgressSection progressPercent={progressPercent} dueDateLabel={project.dueDateLabel} />
       </ScrollView>
+      <View style={styles.progressDock}>
+        <ProgressSection progressPercent={progressPercent} dueDateLabel={project.dueDateLabel} />
+      </View>
       <View style={styles.navDock}>
         <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
       </View>
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   content: {
-    paddingBottom: 16
+    paddingBottom: 18
   },
   roadmapCard: {
     marginTop: 12,
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.charcoalSoft,
     borderRadius: 30,
     padding: 10,
-    minHeight: 420
+    minHeight: 520
   },
   infoText: {
     color: colors.textMuted,
@@ -118,8 +119,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 18,
     fontSize: 13
   },
+  progressDock: {
+    marginTop: 6
+  },
   navDock: {
-    marginTop: 10,
+    marginTop: 8,
     marginHorizontal: 16
   },
   tasksContainer: {
