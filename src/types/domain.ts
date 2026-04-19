@@ -32,3 +32,13 @@ export interface AiSuggestionInput {
   objective: string;
   phaseCount: number;
 }
+
+export interface AiGeneratedPhase {
+  phaseNumber: number;
+  goal: string;
+  tasks: string[];
+}
+
+export interface AiGeneratedPlan {
+  phases: AiGeneratedPhase[];
+}
