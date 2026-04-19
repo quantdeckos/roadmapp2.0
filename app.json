@@ -4,10 +4,8 @@
     "slug": "roadmapp-ui",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./dash-home-roadmapp.png",
     "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./dash-home-roadmapp.png",
       "resizeMode": "contain",
       "backgroundColor": "#111111"
     },
@@ -21,7 +19,6 @@
     "android": {
       "package": "com.roadmapp.mobile",
       "adaptiveIcon": {
-        "foregroundImage": "./dash-home-roadmapp.png",
         "backgroundColor": "#111111"
       }
     },
