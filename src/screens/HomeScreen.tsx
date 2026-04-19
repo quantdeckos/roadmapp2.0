@@ -11,9 +11,13 @@ interface HomeScreenProps {
 export const HomeScreen = ({ activeTab, onTabPress }: HomeScreenProps) => {
   return (
     <View style={styles.screen}>
-      <Text style={styles.title}>Home</Text>
-      <Text style={styles.subtitle}>AI highlights and today summary will live here.</Text>
-      <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
+      <View style={styles.content}>
+        <Text style={styles.title}>Home</Text>
+        <Text style={styles.subtitle}>AI highlights and today summary will live here.</Text>
+      </View>
+      <View style={styles.navDock}>
+        <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
+      </View>
     </View>
   );
 };
@@ -22,10 +26,16 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.charcoal,
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     paddingTop: 84,
-    paddingBottom: 12
+    paddingBottom: 8
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 2
+  },
+  navDock: {
+    paddingHorizontal: 2
   },
   title: {
     color: colors.textPrimary,
