@@ -7,7 +7,7 @@ const buildPhaseTasks = (phaseNumber: number) => [
     exp: 10,
     durationMinutes: 15,
     category: "health" as const,
-    completed: true,
+    completed: false,
     repeatUntilDone: true
   },
   {
@@ -79,7 +79,7 @@ export const initialRoadmapProject: RoadmapProject = {
   id: "project-1",
   name: "RoadMapp Product Launch",
   dueDateLabel: "Jul 28",
-  currentPhaseNumber: 8,
+  currentPhaseNumber: 1,
   phases: Array.from({ length: 20 }, (_, i) => ({
     id: `phase-${i + 1}`,
     number: i + 1,
