@@ -52,11 +52,20 @@ EXPO_PUBLIC_SUPABASE_URL=...
 EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
+## Supabase Setup (Step 1)
+
+1. Open Supabase SQL Editor and run [`supabase/schema.sql`](./supabase/schema.sql).
+2. Copy your project URL and anon key into `.env`.
+3. Restart Expo (`npm run start`).
+
+The app will auto-seed one starter project if the `projects` table is empty.
+
 ## Key Files
 
 - `App.tsx` app shell and tab routing
 - `src/screens/RoadmapScreen.tsx` flagship roadmap UI
 - `src/state/useRoadmap.ts` phase lock + task progression logic
+- `src/services/roadmapRepo.ts` Supabase-backed roadmap repository
 - `src/services/aiPlanner.ts` AI roadmap generation request
 - `src/services/supabase.ts` backend client
 - `src/services/notifications.ts` daily reminder setup
