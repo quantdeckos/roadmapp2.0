@@ -54,7 +54,7 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
 
         <View style={styles.roadmapCard}>
           <PhaseRail activePhase={currentPhase.number} maxPhase={project.phases.length} />
-          <Animated.View style={[styles.tasksContainer, { transform: [{ translateY: phaseTransition }] }]}>
+          <Animated.View style={[styles.tasksContainer, { transform: [{ translateY: phaseTransition }] }]}> 
             <TaskList
               phase={currentPhase}
               nextPhaseLocked={nextPhaseLocked}
@@ -65,8 +65,10 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
         </View>
 
         <ProgressSection progressPercent={progressPercent} dueDateLabel={project.dueDateLabel} />
-        <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
       </ScrollView>
+      <View style={styles.navDock}>
+        <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
+      </View>
       <AiRoadmapModal
         visible={aiModalVisible}
         generating={generatingAiProject}
@@ -86,13 +88,14 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.charcoal
+    backgroundColor: colors.charcoal,
+    paddingBottom: 8
   },
   scroll: {
     flex: 1
   },
   content: {
-    paddingBottom: 20
+    paddingBottom: 16
   },
   roadmapCard: {
     marginTop: 12,
@@ -114,6 +117,10 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginHorizontal: 18,
     fontSize: 13
+  },
+  navDock: {
+    marginTop: 10,
+    marginHorizontal: 16
   },
   tasksContainer: {
     flex: 1
