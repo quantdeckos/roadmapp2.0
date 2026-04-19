@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AiRoadmapModal } from "../components/AiRoadmapModal";
 import { BottomNav } from "../components/BottomNav";
 import { PhaseRail } from "../components/PhaseRail";
 import { ProgressSection } from "../components/ProgressSection";
@@ -15,8 +16,20 @@ interface RoadmapScreenProps {
 }
 
 export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => {
-  const { project, currentPhase, nextPhaseLocked, progressPercent, loading, syncError, toggleTask, moveToNextPhase } =
-    useRoadmap();
+  const {
+    project,
+    currentPhase,
+    nextPhaseLocked,
+    progressPercent,
+    loading,
+    syncError,
+    generatingAiProject,
+    aiGenerationError,
+    toggleTask,
+    moveToNextPhase,
+    generateProjectWithAi
+  } = useRoadmap();
+  const [aiModalVisible, setAiModalVisible] = useState(false);
   const phaseTransition = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -31,13 +44,17 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
   return (
     <View style={styles.screen}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <TopHeader onMenuPress={() => {}} onNewProjectPress={() => {}} />
+        <TopHeader
+          onMenuPress={() => {}}
+          onNewProjectPress={() => setAiModalVisible(true)}
+          onAskAiPress={() => setAiModalVisible(true)}
+        />
         {loading ? <Text style={styles.infoText}>Syncing project from Supabase...</Text> : null}
         {syncError ? <Text style={styles.errorText}>Sync warning: {syncError}</Text> : null}
 
         <View style={styles.roadmapCard}>
           <PhaseRail activePhase={currentPhase.number} maxPhase={project.phases.length} />
-          <Animated.View style={[styles.tasksContainer, { transform: [{ translateY: phaseTransition }] }]}> 
+          <Animated.View style={[styles.tasksContainer, { transform: [{ translateY: phaseTransition }] }]}>
             <TaskList
               phase={currentPhase}
               nextPhaseLocked={nextPhaseLocked}
@@ -50,6 +67,18 @@ export const RoadmapScreen = ({ activeTab, onTabPress }: RoadmapScreenProps) => 
         <ProgressSection progressPercent={progressPercent} dueDateLabel={project.dueDateLabel} />
         <BottomNav activeTab={activeTab} onTabPress={onTabPress} />
       </ScrollView>
+      <AiRoadmapModal
+        visible={aiModalVisible}
+        generating={generatingAiProject}
+        error={aiGenerationError}
+        onClose={() => setAiModalVisible(false)}
+        onGenerate={async (input) => {
+          const created = await generateProjectWithAi(input);
+          if (created) {
+            setAiModalVisible(false);
+          }
+        }}
+      />
     </View>
   );
 };
