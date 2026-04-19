@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
 
 interface PhaseRailProps {
@@ -7,13 +7,11 @@ interface PhaseRailProps {
 }
 
 export const PhaseRail = ({ activePhase, maxPhase }: PhaseRailProps) => {
-  const visiblePhases = Array.from({ length: 5 }, (_, i) => activePhase - 2 + i).filter(
-    (phase) => phase > 0 && phase <= maxPhase
-  );
+  const phases = Array.from({ length: maxPhase }, (_, i) => i + 1);
 
   return (
-    <View style={styles.wrapper}>
-      {visiblePhases.map((phase) => {
+    <ScrollView style={styles.wrapper} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      {phases.map((phase) => {
         const isActive = phase === activePhase;
         return (
           <View key={phase} style={styles.phaseRow}>
@@ -22,15 +20,18 @@ export const PhaseRail = ({ activePhase, maxPhase }: PhaseRailProps) => {
           </View>
         );
       })}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
     width: 62,
-    paddingTop: 12,
-    alignItems: "center"
+    paddingTop: 12
+  },
+  content: {
+    alignItems: "center",
+    paddingBottom: 12
   },
   phaseRow: {
     width: "100%",
